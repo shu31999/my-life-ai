@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="人生・学習・お金・仕事を支援する個人用AI">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>MY LIFE AI</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--panel2:#1a2940;--line:#2a3b55;--txt:#edf3fc;--muted:#9fb0c8;--accent:#72a9ff;--good:#7bd8b0}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101d32,var(--bg) 55%);color:var(--txt);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .wrap{max-width:760px;margin:auto;padding:20px 16px calc(28px + env(safe-area-inset-bottom))}
+    header{display:flex;align-items:center;gap:12px;margin:8px 0 20px}.logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#3978d8,#8d6de8);display:grid;place-items:center;font-size:25px}
+    h1{font-size:21px;margin:0}.sub{color:var(--muted);font-size:12px;margin-top:4px}.pill{margin-left:auto;border:1px solid #326b59;color:var(--good);border-radius:99px;padding:6px 9px;font-size:11px}
+    .card{background:rgba(18,29,48,.94);border:1px solid var(--line);border-radius:18px;padding:16px;margin:13px 0;box-shadow:0 10px 30px #0002}
+    .notice{font-size:12px;line-height:1.65;color:var(--muted)}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    button,.tab{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:12px;padding:12px 10px;font-size:14px;cursor:pointer}
+    .tab.active{border-color:var(--accent);background:#20385b}.tab span{display:block;font-size:20px;margin-bottom:5px}
+    label{display:block;font-size:13px;color:var(--muted);margin:12px 0 7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);background:#0b1525;color:var(--txt);border-radius:12px;padding:13px;font:inherit}
+    textarea{min-height:112px;resize:vertical;line-height:1.55}
+    .row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}
+    .primary{width:100%;background:linear-gradient(100deg,#3479db,#765bd4);border:0;font-weight:700;padding:15px;margin-top:14px}
+    .secondary{font-size:12px;padding:9px}.answer{white-space:pre-wrap;line-height:1.7;font-size:14px}
+    .muted{color:var(--muted)}.small{font-size:11px}.hidden{display:none!important}
+    .history-item{border-top:1px solid var(--line);padding:11px 0}.history-item strong{font-size:13px}.history-item p{font-size:12px;color:var(--muted);white-space:pre-wrap}
+    footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 0}
+    @media(min-width:600px){.tabs{grid-template-columns:repeat(5,1fr)}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">✦</div>
+    <div><h1>MY LIFE AI</h1><div class="sub">あなたの人生を支援するパーソナルAI</div></div>
+    <div class="pill">無料枠対応</div>
+  </header>
+
+  <section class="card">
+    <strong>AI接続設定</strong>
+    <p class="notice">Google Gemini APIを利用します。Google AI Studioで発行したAPIキーを入力してください。キーはこのタブの間だけ保持し、アプリのファイルには保存しません。</p>
+    <label for="apiKey">Gemini APIキー</label>
+    <div class="row"><input id="apiKey" type="password" placeholder="AIza..." autocomplete="off"><button id="toggleKey" class="secondary" style="flex:0 0 auto">表示</button></div>
+    <div class="row" style="margin-top:9px"><button id="saveKey" class="secondary">このタブで使う</button><button id="clearKey" class="secondary">キーを消去</button></div>
+    <p id="keyStatus" class="notice">未接続です。APIキーを設定してください。</p>
+    <p class="notice">※無料枠・利用可能モデル・回数制限はGoogle側の条件で変わります。無料枠を超えた場合に課金されないよう、Google AI Studio側で課金設定を確認し、課金プランを有効にしないでください。</p>
+    <p class="notice"><a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--accent)">Google AI StudioでAPIキーを作成 ↗</a></p>
+  </section>
+
+  <section class="card">
+    <strong>何をサポートしますか？</strong>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-mode="人生相談"><span>🧭</span>人生相談</button>
+      <button class="tab" data-mode="学習・教養"><span>📚</span>学習・教養</button>
+      <button class="tab" data-mode="資産形成"><span>💰</span>資産形成</button>
+      <button class="tab" data-mode="仕事"><span>💼</span>仕事</button>
+      <button class="tab" data-mode="自己分析"><span>🪞</span>自己分析</button>
+    </div>
+    <label for="question">相談・質問</label>
+    <textarea id="question" placeholder="例：語彙力を伸ばすために、今日30分でできることを考えてください。"></textarea>
+    <label for="style">回答スタイル</label>
+    <select id="style">
+      <option>具体的で実行しやすく</option><option>専門的に深く解説</option><option>短く要点だけ</option><option>優しく丁寧に</option>
+    </select>
+    <button id="send" class="primary">MY LIFE AIに相談する</button>
+    <p id="status" class="notice" aria-live="polite"></p>
+  </section>
+
+  <section id="answerCard" class="card hidden">
+    <div class="row"><strong>MY LIFE AIの回答</strong><button id="copy" class="secondary" style="flex:0 0 auto">コピー</button></div>
+    <div id="answer" class="answer" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card">
+    <div class="row"><strong>会話履歴</strong><button id="clearHistory" class="secondary" style="flex:0 0 auto">履歴を消去</button></div>
+    <p class="notice">履歴はこの端末のブラウザ内に保存されます。共有端末では使わないでください。</p>
+    <div id="history"><p class="muted small">まだ履歴はありません。</p></div>
+  </section>
+  <footer>MY LIFE AI · 個人利用向け試作版 · APIキーや会話内容の取り扱いに注意してください</footer>
+</div>
+<script>
+const MODEL = "gemini-2.5-flash-lite";
+const SYSTEM = `あなたはMY LIFE AIという個人向け生活支援アシスタントです。日本語で回答してください。
+役割：人生相談、学習・教養・語彙力、資産形成の基礎、仕事・キャリア、自己分析を支援する。
+回答方針：
+- まず質問の意図を正確に捉え、具体的で実行可能な提案をする。
+- 必要なら見出し・箇条書き・手順・例を使う。
+- 不確かな情報は断定せず、事実と推測を分ける。
+- 金融・医療・法律など重要な判断では一般情報として説明し、専門家への確認が必要な点を明示する。利益や結果を保証しない。
+- ユーザーを尊重し、説教・決めつけ・過度な楽観を避ける。
+- 学習相談では理解を深める問いや練習問題も提案する。`;
+
+let mode = "人生相談", apiKey = sessionStorage.getItem("mlai_key") || "", lastAnswer = "";
+const $ = id => document.getElementById(id);
+function updateKey(){ $("keyStatus").textContent = apiKey ? "このタブでAPIキーを使用できます。" : "未接続です。APIキーを設定してください。"; $("apiKey").value = apiKey; }
+updateKey();
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active"); mode=b.dataset.mode;
+}));
+$("toggleKey").onclick=()=>{const x=$("apiKey");x.type=x.type==="password"?"text":"password";};
+$("saveKey").onclick=()=>{apiKey=$("apiKey").value.trim(); if(apiKey)sessionStorage.setItem("mlai_key",apiKey);else sessionStorage.removeItem("mlai_key");updateKey();};
+$("clearKey").onclick=()=>{apiKey="";sessionStorage.removeItem("mlai_key");$("apiKey").value="";updateKey();};
+function getHistory(){try{return JSON.parse(localStorage.getItem("mlai_history")||"[]")}catch{return []}}
+function drawHistory(){const h=getHistory();$("history").innerHTML=h.length?h.slice().reverse().map(x=>`<div class="history-item"><strong>${escapeHtml(x.mode)} · ${escapeHtml(x.date)}</strong><p>${escapeHtml(x.q)}</p><p>${escapeHtml(x.a.slice(0,220))}${x.a.length>220?"…":""}</p></div>`).join(""):'<p class="muted small">まだ履歴はありません。</p>'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+drawHistory();
+$("send").onclick=async()=>{
+  const q=$("question").value.trim();
+  if(!q){$("status").textContent="質問を入力してください。";return}
+  if(!apiKey){$("status").textContent="先にGemini APIキーを設定してください。";$("apiKey").focus();return}
+  $("send").disabled=true;$("status").textContent="回答を生成しています…";$("answerCard").classList.add("hidden");
+  const prompt=`相談分野：${mode}\n回答スタイル：${$("style").value}\n質問：${q}`;
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:1800}})
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error?.message||`HTTP ${res.status}`);
+    lastAnswer=data.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("\n").trim()||"回答を取得できませんでした。";
+    $("answer").textContent=lastAnswer;$("answerCard").classList.remove("hidden");$("status").textContent="回答ができました。";
+    const h=getHistory();h.push({mode,date:new Date().toLocaleString("ja-JP"),q,a:lastAnswer});localStorage.setItem("mlai_history",JSON.stringify(h.slice(-30)));drawHistory();
+  }catch(e){$("status").textContent="エラー："+e.message+"（APIキー、モデルの利用可否、無料枠の上限を確認してください）";}
+  finally{$("send").disabled=false;}
+};
+$("copy").onclick=async()=>{if(lastAnswer){await navigator.clipboard.writeText(lastAnswer);$("copy").textContent="コピー済み";setTimeout(()=>$("copy").textContent="コピー",1500)}};
+$("clearHistory").onclick=()=>{if(confirm("この端末に保存した会話履歴を消去しますか？")){localStorage.removeItem("mlai_history");drawHistory();}};
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body>
+</html>
